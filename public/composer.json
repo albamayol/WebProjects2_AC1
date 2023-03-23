@@ -1,0 +1,17 @@
+{
+    "name": "ac1/pw2",
+    "type": "project",
+    "require": {
+        "guzzlehttp/guzzle": "^7.5"
+    },
+    "autoload": {
+        "psr-4": {
+            "Ac1\\Pw2\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "albamayol"
+        }
+    ]
+}
