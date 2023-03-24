@@ -4,19 +4,25 @@
     $errorPasswd = null;
     $errorMail = null;
     //session_start + comprobar si existe o no la sesion
+    session_start();
+    if (!isset($_SESSION['counter'])) {
+        $_SESSION['counter'] = 1;
+    } else {
+        $_SESSION['counter']++;
+    }
     //FUNCIONES
     function checkPasswd($password, &$errorPasswd): void {
         if (strlen($password) < 7) {
-            $errorPasswd = $errorPasswd . ' Your password must be 7 characters or longer.';
+            $errorPasswd = $errorPasswd . ' Your password must be 7 characters or longer. <br>';
         }
         if (preg_match('/[a-z]/', $password) === 0) {   //puede devolver 'false' en caso de error, por eso es recomendable comparar también el type
-            $errorPasswd = $errorPasswd . ' Your password must contain at least one Non capital letter.';
+            $errorPasswd = $errorPasswd . ' Your password must contain at least one Non capital letter.<br>';
         }
         if (preg_match('/[A-Z]/', $password) === 0) {   //puede devolver 'false' en caso de error, por eso es recomendable comparar también el type
-            $errorPasswd = $errorPasswd . ' Your password must contain at least one capital letter.';
+            $errorPasswd = $errorPasswd . ' Your password must contain at least one capital letter.<br>';
         }
         if (preg_match('/[0-9]/', $password) === 0) {   //puede devolver 'false' en caso de error, por eso es recomendable comparar también el type
-            $errorPasswd = $errorPasswd . ' Your password must contain at least one number.';
+            $errorPasswd = $errorPasswd . ' Your password must contain at least one number.<br>';
         }
     }
 
@@ -35,12 +41,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         //check password
         checkPasswd($password, $errorPasswd);
 
-        if (is_null($errorMail) || is_null($errorPasswd)) { //NO hi ha hagut cap error a l'hora de fer sign in
+        if (is_null($errorMail) && is_null($errorPasswd)) { //NO hi ha hagut cap error a l'hora de fer sign in
             header("Location: login.php");
             exit; // The exit statement is used to terminate the script execution after the header is sent to the browser. This is important because if you don't exit, the script will continue to execute and may output additional content that can interfere with the redirection.
         }
         
         $user = new User($email, $password);
+        //TODO BORRAR ESTOS echo's
         echo 'The username is: ' . $user->getName();
         echo 'The password is: ' . $user->getPassword();
     }
@@ -62,7 +69,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         </div>
         <div class="password_input">
             <input type="password" name="password" class="password" placeholder="Password">
-            <?php echo '<h4 id="errors" class="errors" name="errors" value="'. $errorPasswd. '"></h4>'; ?>
+            <h4> <?php echo $errorPasswd;?> </h4>
         </div>
         <button type="submit">Register</button>
     </form>
@@ -82,8 +89,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         flex-direction: column;
         align-items: center;
     }
-    .errors {
-        background: aquamarine;
+    .form > h4 {
+        text-align: center;
+        /*text-justify: inter-word;*/
+    }
+    .email_input {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    .password_input {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
     }
 
 </style>
