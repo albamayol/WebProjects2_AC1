@@ -1,14 +1,15 @@
 <?php
-    require_once 'user.php';
+    //require_once 'user.php';
     //INICIALIZAMOS LAS VARIABLES
     $errorPasswd = null;
     $errorMail = null;
-    //session_start + comprobar si existe o no la sesion
-    session_start();
-    if (!isset($_SESSION['counter'])) {
-        $_SESSION['counter'] = 1;
-    } else {
-        $_SESSION['counter']++;
+
+    //CONNECTION TO THE DATABASE
+    try {
+        $connection = new PDO('mysql:host=db;dbname=LSCat', 'root', 'admin');
+        $connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    } catch (PDOException $e) {
+        echo 'PDO failed: ' . $e->getMessage();
     }
     //FUNCIONES
     function checkPasswd($password, &$errorPasswd): void {
@@ -42,14 +43,22 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         checkPasswd($password, $errorPasswd);
 
         if (is_null($errorMail) && is_null($errorPasswd)) { //NO hi ha hagut cap error a l'hora de fer sign in
+            $time = new DateTime('now');
+            //$user = new User($email, $password, $time, $time);
+
+            $statement = $connection->prepare("INSERT INTO Users (email, password, created_at, updated_at) VALUES (:value1, :value2, :value3, :value4)");
+
+            $statement->bindParam(':value1', $email);
+            $statement->bindParam(':value2', $password);
+            $timeconv = $time->format('Y-m-d H:i:s');
+            $statement->bindParam(':value3', $timeconv);
+            $statement->bindParam(':value4', $timeconv);
+
+            $statement->execute();
+
             header("Location: login.php");
             exit; // The exit statement is used to terminate the script execution after the header is sent to the browser. This is important because if you don't exit, the script will continue to execute and may output additional content that can interfere with the redirection.
         }
-        
-        $user = new User($email, $password);
-        //TODO BORRAR ESTOS echo's
-        echo 'The username is: ' . $user->getName();
-        echo 'The password is: ' . $user->getPassword();
     }
 }
 
